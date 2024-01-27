@@ -1,6 +1,12 @@
 import Foundation
 import XCTest
 
+class Checkout {
+    
+    let total = 0
+
+}
+
 class CheckoutTests: XCTestCase {
     
     let co: Checkout = Checkout()
