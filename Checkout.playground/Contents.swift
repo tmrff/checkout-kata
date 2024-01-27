@@ -23,7 +23,7 @@ class CheckoutTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let prices = ["A": 50, "B": 30]
+        let prices = ["A": 50, "B": 30, "C": 20, "D": 15]
         co = Checkout(prices)
     }
 
