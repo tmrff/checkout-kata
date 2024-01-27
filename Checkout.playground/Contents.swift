@@ -74,6 +74,11 @@ class CheckoutTests: XCTestCase {
         XCTAssertEqual(180, co.total)
     }
     
+    func testFiveSame() {
+        price("AAAAA")
+        XCTAssertEqual(230, co.total)
+    }
+    
 }
 
 CheckoutTests.defaultTestSuite.run()
