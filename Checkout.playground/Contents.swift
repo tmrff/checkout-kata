@@ -26,6 +26,12 @@ class CheckoutTests: XCTestCase {
         XCTAssertEqual(50, co.total)
     }
     
+    func testTwo() {
+        co.scan("A")
+        co.scan("B")
+        XCTAssertEqual(80, co.total)
+    }
+    
 }
 
 CheckoutTests.defaultTestSuite.run()
