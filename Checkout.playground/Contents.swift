@@ -17,7 +17,7 @@ class Checkout {
             
             if product == "A" {
                 aCounter += 1
-                if aCounter == 3 {
+                if aCounter % 3 == 0 {
                     total = total - 20
                 }
             }
