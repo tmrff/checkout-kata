@@ -21,6 +21,12 @@ class Checkout {
 class CheckoutTests: XCTestCase {
     var co: Checkout!
     
+    func price(_ products: String) {
+        for product in products {
+            co.scan(String(product))
+        }
+    }
+    
     override func setUp() {
         super.setUp()
         let prices = ["A": 50, "B": 30, "C": 20, "D": 15]
@@ -32,21 +38,17 @@ class CheckoutTests: XCTestCase {
     }
     
     func testOne() {
-        co.scan("A")
+        price("A")
         XCTAssertEqual(50, co.total)
     }
     
     func testTwo() {
-        co.scan("A")
-        co.scan("B")
+        price("AB")
         XCTAssertEqual(80, co.total)
     }
     
     func testFour() {
-        co.scan("C")
-        co.scan("D")
-        co.scan("B")
-        co.scan("A")
+        price("CDBA")
         XCTAssertEqual(115, co.total)
     }
     
