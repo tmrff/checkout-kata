@@ -3,9 +3,12 @@ import XCTest
 
 class Checkout {
     
-    let total = 0
+    var total = 0
     
     func scan(_ product: String) {
+        if product == "A" {
+            total = 50
+        }
     }
 
 }
