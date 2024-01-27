@@ -4,18 +4,28 @@ import XCTest
 class Checkout {
     
     var total = 0
+    var prices: [String: Int]
+    
+    init(_ prices: [String: Int]) {
+        self.prices = prices
+    }
     
     func scan(_ product: String) {
-        if product == "A" {
-            total = 50
+        if let price = prices[product] {
+            total += price
         }
     }
 
 }
 
 class CheckoutTests: XCTestCase {
+    var co: Checkout!
     
-    let co: Checkout = Checkout()
+    override func setUp() {
+        super.setUp()
+        let prices = ["A": 50, "B": 30]
+        co = Checkout(prices)
+    }
 
     func testEmpty() {
         XCTAssertEqual(0, co.total)
