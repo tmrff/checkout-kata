@@ -5,6 +5,7 @@ class Checkout {
     
     var total = 0
     var prices: [String: Int]
+    var aCounter = 0
     
     init(_ prices: [String: Int]) {
         self.prices = prices
@@ -13,9 +14,15 @@ class Checkout {
     func scan(_ product: String) {
         if let price = prices[product] {
             total += price
+            
+            if product == "A" {
+                aCounter += 1
+                if aCounter == 3 {
+                    total = total - 20
+                }
+            }
         }
     }
-
 }
 
 class CheckoutTests: XCTestCase {
@@ -56,7 +63,6 @@ class CheckoutTests: XCTestCase {
         price("AA")
         XCTAssertEqual(100, co.total)
     }
-    
     
     func testThreeSame() {
         price("AAA")
