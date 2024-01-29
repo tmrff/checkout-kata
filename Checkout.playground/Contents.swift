@@ -5,34 +5,34 @@ class Checkout {
     
     var total = 0
     var prices: [String: Int]
-    var aCounter = 0
-    var bCounter = 0
-    
+    var productCounters: [String: Int] = [:]
+
     init(_ prices: [String: Int]) {
         self.prices = prices
     }
     
-    func applyDiscounts(for product: String) {
-        if product == "A" {
-            aCounter += 1
-            if aCounter % 3 == 0 {
-                total = total - 20
-            }
-        }
+    func calculateDiscount(for product: String) -> Int {
+        productCounters[product, default: 0] += 1
         
-        if product == "B" {
-            bCounter += 1
-            if bCounter % 2 == 0 {
-                total = total - 15
+        switch product {
+        case "A":
+            if productCounters[product]! % 3 == 0 {
+                return 20
             }
+        case "B":
+            if productCounters[product]! % 2 == 0 {
+                return 15
+            }
+        default:
+            break
         }
+        return 0
     }
     
     func scan(_ product: String) {
         if let price = prices[product] {
             total += price
-            applyDiscounts(for: product)
-            
+            total -= calculateDiscount(for: product)
         }
     }
 }
