@@ -12,23 +12,26 @@ class Checkout {
         self.prices = prices
     }
     
+    func applyDiscounts(for product: String) {
+        if product == "A" {
+            aCounter += 1
+            if aCounter % 3 == 0 {
+                total = total - 20
+            }
+        }
+        
+        if product == "B" {
+            bCounter += 1
+            if bCounter % 2 == 0 {
+                total = total - 15
+            }
+        }
+    }
+    
     func scan(_ product: String) {
         if let price = prices[product] {
             total += price
-            
-            if product == "A" {
-                aCounter += 1
-                if aCounter % 3 == 0 {
-                    total = total - 20
-                }
-            }
-            
-            if product == "B" {
-                bCounter += 1
-                if bCounter % 2 == 0 {
-                    total = total - 15
-                }
-            }
+            applyDiscounts(for: product)
             
         }
     }
