@@ -127,12 +127,12 @@ class CheckoutTests: XCTestCase {
         XCTAssertEqual(175, co.total)
     }
     
-    func AAABBD() {
+    func testAAABBD() {
         price("AAABBD")
         XCTAssertEqual(190, co.total)
     }
     
-    func DABABA() {
+    func testDABABA() {
         price("DABABA")
         XCTAssertEqual(190, co.total)
     }
