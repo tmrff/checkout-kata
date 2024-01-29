@@ -4,14 +4,27 @@ import XCTest
 class Checkout {
     
     var total = 0
-    var prices: [String: Int]
-    var productCounters: [String: Int] = [:]
-
+    private var prices: [String: Int]
+    private var discountManager = DiscountManager()
+    
     init(_ prices: [String: Int]) {
         self.prices = prices
     }
     
-    func calculateDiscount(for product: String) -> Int {
+    func scan(_ product: String) {
+        if let price = prices[product] {
+            total += price
+            total -= discountManager.calculateDiscounts(for: product)
+        }
+    }
+}
+
+
+class DiscountManager {
+    private var productCounters: [String: Int] = [:]
+    
+    func calculateDiscounts(for product: String) -> Int {
+        // Increment the frequency counter for the scanned product
         productCounters[product, default: 0] += 1
         
         switch product {
@@ -26,16 +39,11 @@ class Checkout {
         default:
             break
         }
+        
         return 0
     }
-    
-    func scan(_ product: String) {
-        if let price = prices[product] {
-            total += price
-            total -= calculateDiscount(for: product)
-        }
-    }
 }
+
 
 class CheckoutTests: XCTestCase {
     var co: Checkout!
@@ -51,7 +59,7 @@ class CheckoutTests: XCTestCase {
         let prices = ["A": 50, "B": 30, "C": 20, "D": 15]
         co = Checkout(prices)
     }
-
+    
     func testEmpty() {
         XCTAssertEqual(0, co.total)
     }
