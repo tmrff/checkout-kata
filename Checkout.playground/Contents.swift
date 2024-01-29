@@ -1,63 +1,57 @@
 import Foundation
 import XCTest
 
-class Checkout {
+enum ProductCode: String {
+    case A, B, C, D
+}
+
+protocol DiscountRule {
+    func calculateDiscount(for product: ProductCode, count: Int) -> Int
+}
+
+struct BulkDiscountRule: DiscountRule {
+    var threshold: Int
+    var discountAmount: Int
     
-    var total = 0
-    private var prices: [String: Int]
-    private var discountManager = DiscountManager()
+    func calculateDiscount(for product: ProductCode, count: Int) -> Int {
+        (count / threshold) * discountAmount
+    }
+}
+
+struct Checkout {
+    private var prices: [ProductCode: Int]
+    private var productCounts = [ProductCode: Int]()
+    private var discountRules: [ProductCode: DiscountRule]
     
-    init(_ prices: [String: Int]) {
+    init(prices: [ProductCode: Int], discountRules: [ProductCode: DiscountRule]) {
         self.prices = prices
+        self.discountRules = discountRules
     }
     
-    func scan(_ product: String) {
-        if let price = prices[product] {
-            total += price
-            total -= discountManager.calculateDiscounts(for: product)
-        }
+    mutating func scan(_ productCode: ProductCode) {
+        productCounts[productCode, default: 0] += 1
     }
-}
-
-
-class DiscountManager {
-    private var productCounters: [String: Int] = [:]
     
-    func calculateDiscounts(for product: String) -> Int {
-        // Increment the frequency counter for the scanned product
-        productCounters[product, default: 0] += 1
-        
-        switch product {
-        case "A":
-            if productCounters[product]! % 3 == 0 {
-                return 20
-            }
-        case "B":
-            if productCounters[product]! % 2 == 0 {
-                return 15
-            }
-        default:
-            break
+    var total: Int {
+        var total = 0
+        for (product, count) in productCounts {
+            let price = prices[product] ?? 0
+            let discount = discountRules[product]?.calculateDiscount(for: product, count: count) ?? 0
+            total += (price * count) - discount
         }
-        
-        return 0
+        return total
     }
 }
-
 
 class CheckoutTests: XCTestCase {
     var co: Checkout!
     
-    func price(_ products: String) {
-        for product in products {
-            co.scan(String(product))
-        }
-    }
-    
     override func setUp() {
         super.setUp()
-        let prices = ["A": 50, "B": 30, "C": 20, "D": 15]
-        co = Checkout(prices)
+        let prices = [ProductCode.A: 50, .B: 30, .C: 20, .D: 15]
+        let discountRules = [ProductCode.A: BulkDiscountRule(threshold: 3, discountAmount: 20),
+                             .B: BulkDiscountRule(threshold: 2, discountAmount: 15)]
+        co = Checkout(prices: prices, discountRules: discountRules)
     }
     
     func testEmpty() {
@@ -65,81 +59,117 @@ class CheckoutTests: XCTestCase {
     }
     
     func testOne() {
-        price("A")
+        co.scan(.A)
         XCTAssertEqual(50, co.total)
     }
     
     func testTwo() {
-        price("AB")
+        co.scan(.A)
+        co.scan(.B)
         XCTAssertEqual(80, co.total)
     }
     
     func testFour() {
-        price("CDBA")
+        co.scan(.C)
+        co.scan(.D)
+        co.scan(.B)
+        co.scan(.A)
         XCTAssertEqual(115, co.total)
     }
     
     func testTwoSame() {
-        price("AA")
+        co.scan(.A)
+        co.scan(.A)
         XCTAssertEqual(100, co.total)
     }
     
     func testThreeSame() {
-        price("AAA")
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
         XCTAssertEqual(130, co.total)
     }
     
     func testFourSame() {
-        price("AAAA")
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
         XCTAssertEqual(180, co.total)
     }
     
     func testFiveSame() {
-        price("AAAAA")
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
         XCTAssertEqual(230, co.total)
     }
     
     func testSixSame() {
-        price("AAAAAA")
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
         XCTAssertEqual(260, co.total)
     }
     
     func testAAAB() {
-        price("AAAB")
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.B)
         XCTAssertEqual(160, co.total)
     }
     
     func testAAABB() {
-        price("AAABB")
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.B)
+        co.scan(.B)
         XCTAssertEqual(175, co.total)
     }
     
-    func AAABBD() {
-        price("AAABBD")
+    func testAAABBD() {
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.A)
+        co.scan(.B)
+        co.scan(.B)
+        co.scan(.D)
         XCTAssertEqual(190, co.total)
     }
     
-    func DABABA() {
-        price("DABABA")
+    func testDABABA() {
+        co.scan(.D)
+        co.scan(.A)
+        co.scan(.B)
+        co.scan(.A)
+        co.scan(.B)
+        co.scan(.A)
         XCTAssertEqual(190, co.total)
     }
     
     func testIncremental() {
         XCTAssertEqual(co.total, 0)
         
-        co.scan("A")
+        co.scan(.A)
         XCTAssertEqual(co.total, 50)
         
-        co.scan("B")
+        co.scan(.B)
         XCTAssertEqual(co.total, 80)
         
-        co.scan("A")
+        co.scan(.A)
         XCTAssertEqual(co.total, 130)
         
-        co.scan("A")
+        co.scan(.A)
         XCTAssertEqual(co.total, 160)
         
-        co.scan("B")
+        co.scan(.B)
         XCTAssertEqual(co.total, 175)
     }
     
