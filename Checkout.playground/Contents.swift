@@ -5,10 +5,11 @@ class Checkout {
     
     var total = 0
     private var prices: [String: Int]
-    private var discountManager = DiscountManager()
+    private var discountManager: DiscountManagerProtocol
     
-    init(_ prices: [String: Int]) {
+    init(_ prices: [String: Int], discountManager: DiscountManagerProtocol) {
         self.prices = prices
+        self.discountManager = discountManager
     }
     
     func scan(_ product: String) {
@@ -20,7 +21,7 @@ class Checkout {
 }
 
 
-class DiscountManager {
+class DiscountManager: DiscountManagerProtocol {
     private var productCounters: [String: Int] = [:]
     
     func calculateDiscounts(for product: String) -> Int {
@@ -44,6 +45,17 @@ class DiscountManager {
     }
 }
 
+protocol DiscountManagerProtocol {
+    func calculateDiscounts(for product: String) -> Int
+}
+
+class MockDiscountManager: DiscountManagerProtocol {
+    var mockDiscounts = [String: Int]()
+
+    func calculateDiscounts(for product: String) -> Int {
+        return mockDiscounts[product, default: 0]
+    }
+}
 
 class CheckoutTests: XCTestCase {
     var co: Checkout!
@@ -57,7 +69,8 @@ class CheckoutTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let prices = ["A": 50, "B": 30, "C": 20, "D": 15]
-        co = Checkout(prices)
+        let mockDiscountManager = MockDiscountManager()
+        co = Checkout(prices, discountManager: mockDiscountManager)
     }
     
     func testEmpty() {
