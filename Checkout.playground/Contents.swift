@@ -6,6 +6,7 @@ class Checkout {
     var total = 0
     var prices: [String: Int]
     var aCounter = 0
+    var bCounter = 0
     
     init(_ prices: [String: Int]) {
         self.prices = prices
@@ -21,6 +22,14 @@ class Checkout {
                     total = total - 20
                 }
             }
+            
+            if product == "B" {
+                bCounter += 1
+                if bCounter % 2 == 0 {
+                    total = total - 15
+                }
+            }
+            
         }
     }
 }
@@ -92,6 +101,35 @@ class CheckoutTests: XCTestCase {
     func testAAABB() {
         price("AAABB")
         XCTAssertEqual(175, co.total)
+    }
+    
+    func AAABBD() {
+        price("AAABBD")
+        XCTAssertEqual(190, co.total)
+    }
+    
+    func DABABA() {
+        price("DABABA")
+        XCTAssertEqual(190, co.total)
+    }
+    
+    func testIncremental() {
+        XCTAssertEqual(co.total, 0)
+        
+        co.scan("A")
+        XCTAssertEqual(co.total, 50)
+        
+        co.scan("B")
+        XCTAssertEqual(co.total, 80)
+        
+        co.scan("A")
+        XCTAssertEqual(co.total, 130)
+        
+        co.scan("A")
+        XCTAssertEqual(co.total, 160)
+        
+        co.scan("B")
+        XCTAssertEqual(co.total, 175)
     }
     
 }
